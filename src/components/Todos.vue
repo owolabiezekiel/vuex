@@ -12,7 +12,7 @@
     </div>
     <div class="todos">
       <div
-        @dblclick="onDblClick(todo)"
+        @dblclick="onDclClick(todo)"
         v-for="todo in allTodos"
         :key="todo.id"
         class="todo"
@@ -20,12 +20,28 @@
       >
         {{ todo.title }}
         <i @click="deleteTodo(todo.id)" class="fas fa-trash-alt"></i>
+        <em @click="showModal(todo)" class="far fa-edit"></em>
       </div>
-    </div>
+      <Modal
+        v-show="isModalVisible"
+        @close="closeModal"
+      >
+      <input slot="title" type="text" v-model="todo_name">
+      <button slot="updateButton"
+          type="button"
+          class="btn-green"
+          aria-label="Close modal"
+          @click="updateTodoTitle()"
+        >
+        Update
+      </button>
+      </Modal>
+      </div>
   </div>
 </template>
 
 <script>
+import Modal from "./Modal"
 import { mapGetters, mapActions } from "vuex";
 
 export default {
@@ -40,11 +56,40 @@ export default {
       };
 
       this.updateTodo(updTodo);
+    },
+    onSnClick(){
+    },
+    showModal(todo) {
+      this.currentTodo = todo
+      this.todo_name = todo.title
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
+    updateTodoTitle(){
+      const updTodo = {
+        id: this.currentTodo.id,
+        title: this.todo_name,
+        completed: this.currentTodo.completed
+      };
+      this.updateTodo(updTodo);
+      this.closeModal()
     }
   },
   computed: mapGetters(["allTodos"]),
   created() {
     this.fetchTodos();
+  },
+  data(){
+    return{
+      todo_name: "",
+      currentTodo: null,
+      isModalVisible: false,
+    }
+  },
+  components:{
+    Modal,
   }
 };
 </script>
